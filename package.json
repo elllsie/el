@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/elsie940616-cloud/el",
+  "homepage": "https://elsie940616-cloud.github.io/el",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -32,6 +32,6 @@
     "globals": "^16.3.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.14",
-    "vite": "^7.1.2"
+    "vite": "^7.1.12"
   }
 }
