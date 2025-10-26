@@ -5,14 +5,14 @@ export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState('');
 
   const artworks = [
-    "/images/art3.png",
-    "/images/art3.png",
-    "/images/art3.png",
-    "/images/art3.png",
-    "/images/art3.png",
-    "/images/art3.png",
-    "/images/art3.png",
-    "/images/art3.png",
+    "./images/art3.png",
+    "./images/art3.png",
+    "./images/art3.png",
+    "./images/art3.png",
+    "./images/art3.png",
+    "./images/art3.png",
+    "./images/art3.png",
+    "./images/art3.png",
   ];
 
   const openModal = (src) => {
