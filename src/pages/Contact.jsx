@@ -17,7 +17,7 @@ export default function Contact() {
               href="mailto:your.email@example.com"
               className="text-blue-400 hover:underline"
             >
-              your.email@example.com
+              elsie616@163.com
             </a>
           </p>
           <p>
