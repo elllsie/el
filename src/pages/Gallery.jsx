@@ -24,21 +24,20 @@ export default function Gallery() {
         description: "",
       },
 
-
       {
-        src: "./images/water/20240611_0011.jpg",
-        title: "最开始",
-        description: "",
+        src: "./images/water/20240611_0012.jpg",
+        title: "summer",
+        description: "at the beginning",
       },
       {
         src: "./images/water/20240611_0010.jpg",
-        title: "最开始",
-        description: "",
+        title: "小花",
+        description: "at the beginning",
       },
       {
         src: "./images/water/20240611_0008.jpg",
-        title: "最开始",
-        description: "",
+        title: "小花2",
+        description: "at the beginning",
       },
       {
         src: "./images/water/20240704_0001.jpg",
@@ -99,8 +98,8 @@ export default function Gallery() {
         description: "",
       },
       {
-        src: "./images/water/20251030_0054.jpg",
-        title: "小路",
+        src: "./images/water/20251030_0059.jpg",
+        title: "夕阳",
         description: "",
       },
   
@@ -295,6 +294,27 @@ export default function Gallery() {
         title: "xiao deng",
         description: "巧克力",
       },
+      {
+        src: "./images/sketch/20251030_0039.jpg",
+        title: "脸",
+        description: "",
+      },
+      {
+        src: "./images/sketch/20251030_0034.jpg",
+        title: "脸",
+        description: "",
+      },
+      {
+        src: "./images/sketch/20250607_0007.jpg",
+        title: "Luigi",
+        description: "",
+      },
+      {
+        src: "./images/sketch/000.JPG",
+        title: "小时候的画",
+        description: "",
+      },
+
     ],
     Digital: [
       {
@@ -332,6 +352,16 @@ export default function Gallery() {
         src: "./images/digital/IMG_4416.JPG",
         title: "友谊",
         description: "撒欢儿的两只咩",
+      },
+      {
+        src: "./images/digital/IMG_4417.JPG",
+        title: "自画像",
+        description: "撒欢儿两只咩",
+      },
+      {
+        src: "./images/digital/IMG_4622.JPG",
+        title: "Emienm",
+        description: "",
       },
 ,
     ],
