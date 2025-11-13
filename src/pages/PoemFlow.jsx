@@ -15,32 +15,35 @@ export default function PoemFlow() {
   const mouse = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const touchActive = useRef(false);
 
-  // 初始化布局
-  useEffect(() => {
+  // 💡 计算每一行的位置和换行布局
+  const computeLayout = () => {
     const screenW = window.innerWidth;
     const screenH = window.visualViewport?.height || window.innerHeight;
-    const scale = screenW < 600 ? 0.7 : 1;
+    const scale = screenW < 600 ? 0.8 : 1;
+
     const allLetters = [];
+    const lineHeight = 64 * scale; // ✅ 固定行距
+    const startY = screenH * 0.15;
+    const usableWidth = screenW * 0.84; // 内容区宽度
 
     poemLines.forEach((line, lineIndex) => {
       const isEnglish = /[a-zA-Z]/.test(line);
-      // ✅ 保留空格
-      const units = isEnglish ? line.split(/(\s+)/) : line.split("");
-      const baseYStart = screenH * 0.1 + lineIndex * Math.min(screenH * 0.12, 80);
+      const units = isEnglish ? line.split(/(\s+)/).filter((s) => s.length > 0) : line.split("");
 
       let currentX = screenW * 0.08;
-      let currentY = baseYStart;
+      let currentY = startY + lineIndex * lineHeight; // ✅ 每一段诗句起始行距固定
 
       const getUnitWidth = (unit) => {
-        if (unit.trim() === "") return 14 * scale; // 保留空格宽度
-        return isEnglish ? (unit.length * 11 + 6) * scale : 28 * scale;
+        if (unit.trim() === "") return 14 * scale;
+        return isEnglish ? (unit.length * 9 + 12) * scale : 28 * scale;
       };
 
+      // 自动换行
       units.forEach((unit, i) => {
         const unitWidth = getUnitWidth(unit);
-        if (currentX + unitWidth > screenW * 0.9) {
+        if (currentX + unitWidth > usableWidth) {
           currentX = screenW * 0.08;
-          currentY += 50 * scale;
+          currentY += 46 * scale; // ✅ 换行内部行距固定
         }
 
         allLetters.push({
@@ -59,16 +62,25 @@ export default function PoemFlow() {
       });
     });
 
-    setLetters(allLetters);
+    return allLetters;
+  };
+
+  // 初始化 + 自适应布局
+  useEffect(() => {
+    const updateLayout = () => setLetters(computeLayout());
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+    window.addEventListener("orientationchange", updateLayout);
+    return () => {
+      window.removeEventListener("resize", updateLayout);
+      window.removeEventListener("orientationchange", updateLayout);
+    };
   }, []);
 
   // 动画循环
   useEffect(() => {
     let animationFrame;
     const animate = () => {
-      const viewW = window.innerWidth;
-      const viewH = window.visualViewport?.height || window.innerHeight;
-
       setLetters((prev) =>
         prev.map((l) => {
           const dx = mouse.current.x - l.x;
@@ -79,7 +91,6 @@ export default function PoemFlow() {
           let targetX = l.x;
           let targetY = l.y;
 
-          // 鼠标靠近时缓慢聚合
           if (touchActive.current || dist < attractionRadius) {
             targetX = l.baseX;
             targetY = l.baseY;
@@ -89,7 +100,6 @@ export default function PoemFlow() {
             targetY = l.y + l.vy;
           }
 
-          // ✅ 调整聚合柔和度（更慢更自然）
           const smoothFactor = l.gathered ? 0.06 : 0.03;
 
           return {
@@ -99,15 +109,12 @@ export default function PoemFlow() {
           };
         })
       );
-
       animationFrame = requestAnimationFrame(animate);
     };
-
     animate();
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
-  // 鼠标 / 触摸事件
   const handlePointerMove = (e) => {
     if (e.touches && e.touches[0]) {
       mouse.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -135,8 +142,9 @@ export default function PoemFlow() {
             left: l.x,
             top: l.y,
             fontSize: `clamp(12px, 3vw, 18px)`,
-            whiteSpace: "pre", // ✅ 保留空格
+            whiteSpace: "pre",
             pointerEvents: "none",
+            lineHeight: 1.4,
           }}
         >
           {l.char}

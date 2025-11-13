@@ -17,7 +17,7 @@ function App() {
         <Link to="/" className="hover:underline">Home</Link>
         <Link to="/gallery" className="hover:underline">Gallery</Link>
         <Link to="/poem" className="hover:underline">Poem</Link>
-        <Link to="/about" className="hover:underline">About</Link>
+        <Link to="/about" className="hover:underline">Canvas</Link>
         {/* <Link to="/contact" className="hover:underline">Contact</Link> */}
         {/* <Link to="/BubbleField" className="hover:underline">BubbleField</Link>
         <Link to="/diary" className="hover:underline">diary</Link> */}

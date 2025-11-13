@@ -1,42 +1,138 @@
-export default function About() {
+import React, { useRef, useState, useEffect } from "react";
+
+export default function SnowPaint() {
+  const canvasRef = useRef(null);
+  const ctxRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [color, setColor] = useState("#9eef25");
+  const [lineWidth, setLineWidth] = useState(5);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    // 设置画布大小
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 背景为柔和雪地渐变
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, "#ffffff");
+    gradient.addColorStop(1, "#cfe9ff");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctxRef.current = ctx;
+  }, []);
+
+  const startDrawing = (e) => {
+    const { x, y } = getPosition(e);
+    ctxRef.current.beginPath();
+    ctxRef.current.moveTo(x, y);
+    setIsDrawing(true);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    const { x, y } = getPosition(e);
+    ctxRef.current.strokeStyle = color;
+    ctxRef.current.lineWidth = lineWidth;
+    ctxRef.current.lineTo(x, y);
+    ctxRef.current.stroke();
+  };
+
+  const stopDrawing = () => {
+    ctxRef.current.closePath();
+    setIsDrawing(false);
+  };
+
+  const getPosition = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    return { x, y };
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 重新填充雪地背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, "#ffffff");
+    gradient.addColorStop(1, "#cfe9ff");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  };
+
+  // ✅ 新增：保存画布为图片
+  const saveCanvas = () => {
+    const canvas = canvasRef.current;
+    const link = document.createElement("a");
+    link.download = `snow_paint_${Date.now()}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
+
   return (
-    <div className="relative w-full min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-yellow-50 overflow-hidden">
-      
-      {/* 文字与图片容器 */}
-      <div className="relative z-10 max-w-5xl mx-auto p-10 flex flex-col lg:flex-row items-center gap-12">
+    <div className="relative w-full h-screen overflow-hidden">
+      {/* 绘图画布 */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 touch-none cursor-crosshair"
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
+        onTouchStart={startDrawing}
+        onTouchMove={draw}
+        onTouchEnd={stopDrawing}
+      />
 
-        {/* 左侧文字浮层 */}
-        <div className="flex-1 space-y-6 text-gray-900 text-lg leading-relaxed">
-          <p className="bg-white/40 backdrop-blur-md p-6 rounded-3xl shadow-lg transform opacity-0 translate-y-6 animate-fadeIn delay-100">
-            I’m a software testing engineer who finds joy in both precision and creativity. 
-            To me, life is an ongoing experiment — a journey defined by curiosity and growth rather than results. 
-            
-          </p>
-          <p className="bg-white/40 backdrop-blur-md p-6 rounded-3xl shadow-lg transform opacity-0 translate-y-6 animate-fadeIn delay-300">
-            I aspire to bridge computer science and art, blending logic with imagination to create something new and genuine. 
-            Through this portfolio, I hope to share not just my artwork, but also a way of seeing — one that values depth, thoughtful reflection, 
-            the beauty of imperfection, and the joy of creating and shaping life.
-          </p>
-        </div>
+      {/* 工具栏 */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-md p-3 rounded-2xl shadow-lg flex items-center gap-3">
+        <label className="flex items-center gap-2 text-sm">
+          🎨 颜色：
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            className="w-8 h-8 border-none cursor-pointer"
+          />
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          ✏️ 粗细：
+          <input
+            type="range"
+            min="1"
+            max="30"
+            value={lineWidth}
+            onChange={(e) => setLineWidth(e.target.value)}
+          />
+        </label>
+        <button
+          onClick={clearCanvas}
+          className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm"
+        >
+          清空画布
+        </button>
 
- 
-
+        {/* 💾 保存按钮 */}
+        <button
+          onClick={saveCanvas}
+          className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm"
+        >
+          保存图片
+        </button>
       </div>
 
-      {/* 动画样式 */}
-      <style jsx>{`
-        .animate-fadeIn {
-          animation: fadeInUp 0.8s forwards;
-        }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-500 { animation-delay: 0.5s; }
-
-        @keyframes fadeInUp {
-          0% { opacity: 0; transform: translateY(1.5rem); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      {/* 底部文字 */}
+      <div className="absolute bottom-4 w-full text-center text-gray-600 text-sm opacity-70">
+        在雪地上自由绘画 ❄️
+      </div>
     </div>
   );
 }
