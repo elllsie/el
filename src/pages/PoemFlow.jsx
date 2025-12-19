@@ -5,7 +5,7 @@ const poemLines = [
   "人生如逆旅，我亦是行人",
   "应无所住，而生其心",
   "晚风吻尽荷花叶，任我醉倒在池边",
-  "The limits of my language mean the limits of my world",
+  "The limits of my language mean the limits of my world.",
   "I have forced myself to contradict myself in order to avoid conforming to my own taste.",
   "Art is a habit-forming drug.",
 ];
@@ -19,31 +19,51 @@ export default function PoemFlow() {
   const computeLayout = () => {
     const screenW = window.innerWidth;
     const screenH = window.visualViewport?.height || window.innerHeight;
-    const scale = screenW < 600 ? 0.8 : 1;
+    const isMobile = screenW < 768;
+    const scale = isMobile ? (screenW < 500 ? 0.7 : 0.85) : 1;
 
     const allLetters = [];
-    const lineHeight = 64 * scale; // ✅ 固定行距
-    const startY = screenH * 0.15;
-    const usableWidth = screenW * 0.84; // 内容区宽度
+    const inlineLineHeight = 46 * scale; // 同一句子内的换行行距（紧凑）
+    const sentenceGap = 72 * scale; // 句子之间的间距（宽松）
+    const startY = Math.max(screenH * 0.12, 40);
+    const marginX = screenW * 0.08;
+    const usableWidth = screenW - marginX * 2; // 内容区宽度
+
+    // 创建虚拟canvas来精准测量文本宽度
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const fontSize = Math.max(12, Math.min(18, screenW * 0.05));
+    ctx.font = `300 ${fontSize * scale}px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+
+    let accumulatedY = startY; // 累积Y坐标，用于句子之间的间距
 
     poemLines.forEach((line, lineIndex) => {
       const isEnglish = /[a-zA-Z]/.test(line);
       const units = isEnglish ? line.split(/(\s+)/).filter((s) => s.length > 0) : line.split("");
 
-      let currentX = screenW * 0.08;
-      let currentY = startY + lineIndex * lineHeight; // ✅ 每一段诗句起始行距固定
+      let currentX = marginX;
+      let currentY = accumulatedY; // 该句子的起始Y位置
+      let maxYInLine = currentY; // 记录该句子的最大Y位置
 
       const getUnitWidth = (unit) => {
-        if (unit.trim() === "") return 14 * scale;
-        return isEnglish ? (unit.length * 9 + 12) * scale : 28 * scale;
+        if (unit.trim() === "") return 8 * scale;
+        try {
+          const measured = ctx.measureText(unit).width * 1.05; // 加5%安全边距
+          return measured;
+        } catch {
+          return isEnglish ? Math.max(unit.length * 8, 20) * scale : 24 * scale;
+        }
       };
 
-      // 自动换行
+      // 自动换行 - 带单词完整性检查
       units.forEach((unit, i) => {
         const unitWidth = getUnitWidth(unit);
-        if (currentX + unitWidth > usableWidth) {
-          currentX = screenW * 0.08;
-          currentY += 46 * scale; // ✅ 换行内部行距固定
+        
+        // 检查是否需要换行（保留单词完整性）
+        if (currentX > marginX && currentX + unitWidth > usableWidth) {
+          currentX = marginX;
+          currentY += inlineLineHeight; // 使用紧凑的行距
+          maxYInLine = currentY; // 更新该句子的最大Y位置
         }
 
         allLetters.push({
@@ -60,6 +80,9 @@ export default function PoemFlow() {
 
         currentX += unitWidth;
       });
+
+      // 下一个句子的起始Y位置 = 当前句子最大Y + 句子间距
+      accumulatedY = maxYInLine + sentenceGap;
     });
 
     return allLetters;
@@ -137,14 +160,16 @@ export default function PoemFlow() {
       {letters.map((l) => (
         <motion.div
           key={l.id}
-          className="absolute text-gray-800 font-light"
+          className="absolute text-gray-800 font-light pointer-events-none"
           style={{
             left: l.x,
             top: l.y,
-            fontSize: `clamp(12px, 3vw, 18px)`,
-            whiteSpace: "pre",
+            fontSize: `clamp(11px, 2.5vw, 18px)`,
+            whiteSpace: "nowrap",
             pointerEvents: "none",
-            lineHeight: 1.4,
+            lineHeight: 1.5,
+            letterSpacing: "0.02em",
+            willChange: "transform",
           }}
         >
           {l.char}
