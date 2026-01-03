@@ -11,7 +11,9 @@ export default function Contact() {
       {/* 主体内容浮层 */}
       <main className="relative z-10 max-w-4xl mx-auto p-10 flex flex-col gap-10">
         <h1 className="text-5xl font-extralight mb-8 tracking-wide text-gray-900 text-center">
-          Contact
+          德语转转 – 支持
+         如果你在使用过程中遇到问题，
+         可以通过以下方式联系我：
         </h1>
 
         <div className="space-y-6">
@@ -25,17 +27,7 @@ export default function Contact() {
             </a>
           </p>
 
-          <p className="bg-white/40 backdrop-blur-md p-6 rounded-3xl shadow-lg transform opacity-0 translate-y-6 animate-fadeIn delay-300">
-            <span className="font-medium">LinkedIn:</span>{" "}
-            <a
-              href="https://linkedin.com/in/yourprofile"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400 hover:underline"
-            >
-              linkedin.com/in/yourprofile
-            </a>
-          </p>
+
 
           <p className="bg-white/40 backdrop-blur-md p-6 rounded-3xl shadow-lg transform opacity-0 translate-y-6 animate-fadeIn delay-500">
             Feel free to reach out for collaborations, project inquiries, or just to say hi! 
