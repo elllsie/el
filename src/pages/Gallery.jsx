@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
+
+const thumbnailSrc = (src, width) => {
+  const path = src.replace("./images/", "./images/thumbnails/");
+  return path.replace(/\.[^.]+$/, `.${width}.jpg`);
+};
 
 export default function Gallery() {
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -398,7 +403,7 @@ export default function Gallery() {
     <div className="relative min-h-screen bg-gradient-to-br from-pink-100 via-purple-50 to-yellow-50 p-10 overflow-hidden">
       {/* 分组展示 */}
       {Object.entries(groupedArtworks).map(([group, artworks], index) => (
-        <motion.div
+        <Motion.div
           key={group}
           className="mb-24 relative z-10"
           initial={{ opacity: 0, y: 40 }}
@@ -417,53 +422,82 @@ export default function Gallery() {
           {/* 图片区域 */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {artworks.map((art, i) => (
-              <motion.div
+              <Motion.div
                 key={i}
                 className={`relative group w-full aspect-square rounded-xl overflow-hidden cursor-pointer shadow-lg hover:scale-105 transition-transform duration-500 bg-gray-200`}
                 onClick={() => openModal(group, i)}
                 whileHover={{ scale: 1.05 }}
               >
                 <img
-                  src={art.src}
+                  src={thumbnailSrc(art.src, 480)}
+                  srcSet={`${thumbnailSrc(art.src, 480)} 480w, ${thumbnailSrc(art.src, 960)} 960w`}
+                  sizes="(max-width: 639px) 50vw, (max-width: 767px) 33vw, (max-width: 1023px) 25vw, 20vw"
                   alt={art.title}
+                  width="480"
+                  height="480"
+                  loading={index === 0 && i < 4 ? "eager" : "lazy"}
+                  decoding="async"
+                  fetchPriority={index === 0 && i < 2 ? "high" : "auto"}
                   className="w-full h-full object-cover scale-[1.2] transform group-hover:scale-110 transition-transform duration-700"
                   />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <p className="absolute bottom-3 left-0 w-full text-center text-white text-sm font-light opacity-0 group-hover:opacity-100 transition-all duration-500">
                   {art.title}
                 </p>
-              </motion.div>
+              </Motion.div>
             ))}
           </div>
-        </motion.div>
+        </Motion.div>
       ))}
 
       {/* 全屏艺术介绍层 */}
       <AnimatePresence>
         {selectedArtwork && (
-          <motion.div
+          <Motion.div
             className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             {/* 背景虚化 */}
-            <motion.div
+            <Motion.div
               className="absolute inset-0 bg-cover bg-center blur-2xl opacity-30"
               style={{ backgroundImage: `url(${selectedArtwork.src})` }}
             />
 
             {/* 内容区域 */}
-            <motion.div
+            <Motion.div
               className="relative z-10 text-center max-w-3xl px-6 text-white"
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <motion.img
-                src={selectedArtwork.src}
-                alt={selectedArtwork.title}
-                className="w-full max-h-[70vh] object-contain rounded-2xl shadow-2xl mx-auto mb-10"
-              />
+              <div className="relative mx-auto mb-10 inline-block max-w-full">
+                <Motion.img
+                  src={selectedArtwork.src}
+                  alt={selectedArtwork.title}
+                  decoding="async"
+                  className="block h-auto max-h-[70vh] max-w-full rounded-2xl object-contain shadow-2xl"
+                />
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  aria-label="关闭图片预览"
+                  title="关闭"
+                  className="absolute top-3 right-3 z-20 flex h-14 w-14 min-w-14 items-center justify-center rounded-full border-2 border-white/80 !bg-black/70 !p-0 text-white shadow-2xl backdrop-blur-md hover:!bg-black focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-10 w-10 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.75"
+                    strokeLinecap="round"
+                  >
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                </button>
+              </div>
 
               <h3 className="text-4xl font-light mb-4">
                 {selectedArtwork.title}
@@ -473,40 +507,25 @@ export default function Gallery() {
               </p>
 
               {/* 上一张 / 下一张 */}
-              <div className="flex justify-center gap-10 mt-8 text-2xl">
+              <div className="mt-8 flex flex-wrap justify-center gap-4 sm:gap-8 text-xl sm:text-2xl">
                 <button
+                  type="button"
                   onClick={showPrev}
-                  className="text-gray-300 hover:text-white transition"
+                  className="min-h-12 min-w-32 whitespace-nowrap rounded-xl border border-white/30 !bg-white/10 !px-5 !py-2 text-gray-200 transition hover:!bg-white/20 hover:text-white"
                 >
                   ‹ Prev
                 </button>
                 <button
+                  type="button"
                   onClick={showNext}
-                  className="text-gray-300 hover:text-white transition"
+                  className="min-h-12 min-w-32 whitespace-nowrap rounded-xl border border-white/30 !bg-white/10 !px-5 !py-2 text-gray-200 transition hover:!bg-white/20 hover:text-white"
                 >
                   Next ›
                 </button>
               </div>
               
-              {/* 右上角关闭按钮 */}
-              <motion.button
-                onClick={closeModal}
-                className="absolute top-6 right-6 text-4xl text-white/70 hover:text-white transition z-50"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1 }}
-              >
-                ✕
-              </motion.button>
-{/* 
-              <motion.button
-                onClick={closeModal}
-                className="mt-10 text-2xl text-gray-300 hover:text-white transition"
-              >
-                ✕ Close
-              </motion.button> */}
-            </motion.div>
-          </motion.div>
+            </Motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
     </div>

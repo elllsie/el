@@ -1,8 +1,10 @@
+import { lazy, Suspense } from "react";
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
-import Home from "./pages/Home";
-import Gallery from "./pages/Gallery";
-import About from "./pages/About";
-import PoemFlow from "./pages/PoemFlow";
+
+const Home = lazy(() => import("./pages/Home"));
+const Gallery = lazy(() => import("./pages/Gallery"));
+const About = lazy(() => import("./pages/About"));
+const PoemFlow = lazy(() => import("./pages/PoemFlow"));
 
 function App() {
   return (
@@ -18,12 +20,21 @@ function App() {
 
         {/* 页面内容 */}
         <main className="min-h-screen bg-white text-gray-800">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/canvas" element={<About />} />
-            <Route path="/poem" element={<PoemFlow />} />
-          </Routes>
+          <Suspense
+            fallback={
+              <div
+                className="min-h-screen bg-white"
+                aria-label="页面加载中"
+              />
+            }
+          >
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/canvas" element={<About />} />
+              <Route path="/poem" element={<PoemFlow />} />
+            </Routes>
+          </Suspense>
         </main>
 
         <footer className="text-center p-6 text-sm text-gray-500 border-t">
@@ -35,3 +46,4 @@ function App() {
 }
 
 export default App;
+
